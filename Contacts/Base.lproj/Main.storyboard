@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="59" width="393" height="759"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <connections>
-                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="q1X-z5-KY0"/>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="kCX-PR-XuE"/>
                                 </connections>
                             </tableView>
                         </subviews>
