@@ -7,13 +7,56 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController{
 
-    private var contacts = [ContactProtocol]()
+    private var contacts = [ContactProtocol]() {
+        didSet {
+            contacts.sort { $0.title < $1.title }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadContacts()
+    }
+    
+    @IBOutlet var tableView: UITableView!
+    
+    @IBAction func showNewContactAlert() {
+        // создание Alert Controller
+        let alertController = UIAlertController(title: "Создание нового контакта", message: "Введите имя и телефон", preferredStyle: .alert)
+        
+        // добавляем первое текстовое поле в Alert Controller
+        alertController.addTextField { textField in
+            textField.placeholder = "Имя"
+        }
+        
+        // добавляем второе текстовое поле в Alert Controller
+        alertController.addTextField { textField in
+            textField.placeholder = "Номер телефона"
+        }
+        
+        // создаем кнопки
+        // кнопки создания контакта
+        let createButton = UIAlertAction(title: "Cоздать", style: .default) { _ in
+            guard let contactName = alertController.textFields?[0].text, let contactPhone = alertController.textFields?[1].text else {
+                return
+            }
+            // создаем новый контакт
+            let contact = Contact(title: contactName, phone: contactPhone)
+            self.contacts.append(contact)
+            self.tableView.reloadData()
+        }
+            
+        // кнопка отмены
+        let cancelButton = UIAlertAction(title: "Отменить", style: .cancel, handler: nil)
+        
+        // добавляем кнопки в Alert Controller
+        alertController.addAction(cancelButton)
+        alertController.addAction(createButton)
+        
+        // отображаем Alert Controller
+        self.present(alertController, animated: true, completion: nil)
     }
     
     private func loadContacts() {
@@ -21,8 +64,6 @@ class ViewController: UIViewController {
         contacts.append(Contact(title: "Миссис Смит", phone: "83321928301"))
         contacts.append(Contact(title: "Юлий Цезарь", phone: "77755577700"))
         contacts.append(Contact(title: "Александр Сабитов", phone: "hidden"))
-        
-        contacts.sort { $0.title < $1.title}
     }
 }
 
@@ -53,7 +94,12 @@ extension ViewController: UITableViewDataSource {
             
             configuration.text = contacts[indexPath.row].title
             configuration.secondaryText = contacts[indexPath.row].phone
-            configuration.image = UIImage(systemName: "moon")
+            if configuration.text == "al!na" {
+                configuration.image = UIImage(systemName: "star")
+            }
+            else {
+                configuration.image = UIImage(systemName: "moon")
+            }
             
             cell.contentConfiguration = configuration
         }
