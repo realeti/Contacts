@@ -12,11 +12,16 @@ class ViewController: UIViewController{
     private var contacts = [ContactProtocol]() {
         didSet {
             contacts.sort { $0.title < $1.title }
+            // сохранение контактов в хранилище
+            storage.save(contacts: contacts)
         }
     }
     
+    var storage: ContactStorageProtocol!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        storage = ContactStorage()
         loadContacts()
     }
     
@@ -49,7 +54,7 @@ class ViewController: UIViewController{
         }
             
         // кнопка отмены
-        let cancelButton = UIAlertAction(title: "Отменить", style: .cancel, handler: nil)
+        let cancelButton = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
         
         // добавляем кнопки в Alert Controller
         alertController.addAction(cancelButton)
@@ -60,10 +65,7 @@ class ViewController: UIViewController{
     }
     
     private func loadContacts() {
-        contacts.append(Contact(title: "Барак Обама", phone: "88005553535"))
-        contacts.append(Contact(title: "Миссис Смит", phone: "83321928301"))
-        contacts.append(Contact(title: "Юлий Цезарь", phone: "77755577700"))
-        contacts.append(Contact(title: "Александр Сабитов", phone: "hidden"))
+        contacts = storage.load()
     }
 }
 
@@ -120,10 +122,40 @@ extension ViewController: UITableViewDelegate {
             tableView.reloadData()
         }
         let actionEdit = UIContextualAction(style: .normal, title: "Изменить") { _,_,_ in
-            //...
+            self.showEditContactAlert(self.contacts[indexPath.row].title, self.contacts[indexPath.row].phone, indexPath.row)
         }
         // формируем экземпляр, описывающий доступные действия
         let actions = UISwipeActionsConfiguration(actions: [actionDelete, actionEdit])
         return actions
+    }
+    
+    func showEditContactAlert(_ contactTitle: String, _ contactPhone: String, _ contactIndex: Int) {
+        let alertController = UIAlertController(title: "Редактировать контакт", message: "Внесите изменения", preferredStyle: .alert)
+        
+        alertController.addTextField() { textFied in
+            textFied.text = self.contacts[contactIndex].title
+        }
+        
+        alertController.addTextField { textField in
+            textField.text = self.contacts[contactIndex].phone
+        }
+        
+        let changeButton = UIAlertAction(title: "Сохранить", style: .default) { _ in
+            guard let contactName = alertController.textFields?[0].text,
+                  let contactPhone = alertController.textFields?[1].text else {
+                return
+            }
+            
+            let contact = Contact(title: contactName, phone: contactPhone)
+            self.contacts[contactIndex] = contact
+            self.tableView.reloadData()
+        }
+        
+        let cancelButton = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+        
+        alertController.addAction(changeButton)
+        alertController.addAction(cancelButton)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
 }
