@@ -96,13 +96,6 @@ extension ViewController: UITableViewDataSource {
             
             configuration.text = contacts[indexPath.row].title
             configuration.secondaryText = contacts[indexPath.row].phone
-            if configuration.text == "al!na" {
-                configuration.image = UIImage(systemName: "star")
-            }
-            else {
-                configuration.image = UIImage(systemName: "moon")
-            }
-            
             cell.contentConfiguration = configuration
         }
         else {
